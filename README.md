@@ -38,7 +38,7 @@ webshop-project
 1. Clone the repository or download the project files.
 2. Run `npm install` to install the dependencies.
 3. Start the server by running `npm start`.
-4. Open the `index.html` file in your web browser to view the webshop.
+4. Open the `index.html` file in your web browser (or http://localhost:3000) to view the webshop.
 5. You can modify the CSS in `styles.css` to change the appearance of the webshop.
 6. Update the JavaScript in `scripts.js` to add interactivity and functionality.
 
