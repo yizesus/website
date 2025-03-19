@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart - Webshop</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/stylescart.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -24,8 +25,62 @@
         </nav>
     </header>
     <main>
-        <div class="cart" id="cart"></div>
-        <button id="checkoutButton">Checkout</button>
+        <div class="container">
+            <div class="checkout-form">
+                <h2>Checkout</h2>
+                <form id="checkoutForm">
+                    <label for="country">Delivery Country:</label>
+                    <select id="country" name="country" required>
+                        <option value="Canada">Canada</option>
+                        <!-- Add more countries as needed -->
+                    </select>
+                    
+                    <label for="couponCode">Promo/Student Code or Vouchers:</label>
+                    <input type="text" id="couponCode" name="couponCode">
+                    
+                    <label for="email">Email Address:</label>
+                    <input type="email" id="email" name="email" required>
+                    <button type="button" id="addEmailButton">Add My Email</button>
+                    
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                    
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                    
+                    <label for="postalCode">Postal Code:</label>
+                    <input type="text" id="postalCode" name="postalCode" required>
+                    
+                    <label for="address">Address Line 1:</label>
+                    <input type="text" id="address" name="address" required>
+                    
+                    <label for="address2">Address Line 2 (Optional):</label>
+                    <input type="text" id="address2" name="address2">
+                    
+                    <label for="municipality">Municipality:</label>
+                    <input type="text" id="municipality" name="municipality" required>
+                    
+                    <label for="province">Province/Territory:</label>
+                    <input type="text" id="province" name="province" required>
+                    
+                    <label for="deliveryMethod">Select Delivery Method:</label>
+                    <select id="deliveryMethod" name="deliveryMethod" required>
+                        <option value="standard">Standard (FREE)</option>
+                        <option value="express">Express (CAD 40.00)</option>
+                    </select>
+                    
+                    <label for="phone">Shipping Phone:</label>
+                    <input type="text" id="phone" name="phone" required>
+                    
+                    <button type="button" id="checkoutButton">Place Order</button>
+                </form>
+            </div>
+            <div class="summary">
+                <h2>Summary</h2>
+                <div id="summaryDetails"></div>
+                <div class="cart" id="cart"></div>
+            </div>
+        </div>
     </main>
     <script>
         function removeFromCart(id) {
@@ -38,14 +93,40 @@
         function loadCart() {
             const cartContainer = document.getElementById('cart');
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            cartContainer.innerHTML = cart.map(product => `
+            const itemCounts = {};
+
+            cart.forEach(product => {
+                if (itemCounts[product.id]) {
+                    itemCounts[product.id].count += 1;
+                } else {
+                    itemCounts[product.id] = { ...product, count: 1 };
+                }
+            });
+
+            cartContainer.innerHTML = Object.values(itemCounts).map(product => `
                 <div class="item">
-                    <img src="${product.imageUrl}" alt="${product.name}" style="width:100px;height:100px;">
+                    <img src="${product.imageUrl}" alt="${product.name}" style="width:50px;height:50px;">
                     <h2>${product.name}</h2>
-                    <p>Price: $${product.price}</p>
-                    <button onclick="removeFromCart(${product.id})">Remove</button>
+                    <p>$${product.price} x${product.count}</p>
+                    <button onclick="removeFromCart(${product.id})">X</button>
                 </div>
             `).join('');
+            updateSummary(cart);
+        }
+
+        function updateSummary(cart) {
+            const summaryDetails = document.getElementById('summaryDetails');
+            const subtotal = cart.reduce((total, product) => total + product.price, 0);
+            const shipping = subtotal > 0 ? 'FREE' : 'N/A';
+            const taxes = (subtotal * 0.15).toFixed(2);
+            const total = (subtotal + parseFloat(taxes)).toFixed(2);
+
+            summaryDetails.innerHTML = `
+                <p>Subtotal: $${subtotal.toFixed(2)}</p>
+                <p>Shipping & Handling: ${shipping}</p>
+                <p>Taxes: $${taxes}</p>
+                <p>Total: $${total}</p>
+            `;
         }
 
         async function checkout() {
@@ -57,6 +138,27 @@
                 return;
             }
 
+            const form = document.getElementById('checkoutForm');
+            const formData = new FormData(form);
+            const checkoutData = {
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                postalCode: formData.get('postalCode'),
+                address: formData.get('address'),
+                address2: formData.get('address2'),
+                municipality: formData.get('municipality'),
+                province: formData.get('province'),
+                country: formData.get('country'),
+                deliveryMethod: formData.get('deliveryMethod'),
+                phone: formData.get('phone'),
+                email: formData.get('email'),
+                couponCode: formData.get('couponCode'),
+                cart: JSON.parse(localStorage.getItem('cart')) || []
+            };
+
+            // Here you would send the checkoutData to your server
+            console.log('Checkout Data:', checkoutData);
+
             localStorage.removeItem('cart');
             alert('Thank you for your purchase!');
             loadCart();
@@ -67,6 +169,7 @@
             const loginLink = document.getElementById('loginLink');
             const logoutLink = document.getElementById('logoutLink');
             const checkoutButton = document.getElementById('checkoutButton');
+            const addEmailButton = document.getElementById('addEmailButton');
 
             fetch('/auth/check')
                 .then(response => response.json())
@@ -86,6 +189,9 @@
             });
 
             checkoutButton.addEventListener('click', checkout);
+            addEmailButton.addEventListener('click', () => {
+                alert('Email added successfully!');
+            });
 
             loadCart();
         });

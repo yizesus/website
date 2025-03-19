@@ -14,7 +14,10 @@
             <ul>
                 <li><a href="index.html">Home</a></li>
                 <li><a href="products.html">Products</a></li>
-                <li><a href="admin.html" id="adminLink"><i class="fas fa-user-shield"></i> Admin</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> Cart</a></li>
+                <li><a href="admin.html" id="adminLink" style="display:none;"><i class="fas fa-user-shield"></i> Admin</a></li>
                 <li><a href="login.html" id="loginLink"><i class="fas fa-sign-in-alt"></i> Login</a></li>
                 <li><a href="#" id="logoutLink" style="display:none;"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
@@ -37,6 +40,7 @@
     <script src="js/admin.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const adminLink = document.getElementById('adminLink');
             const loginLink = document.getElementById('loginLink');
             const logoutLink = document.getElementById('logoutLink');
 
@@ -46,6 +50,11 @@
                     if (data.isAuthenticated) {
                         loginLink.style.display = 'none';
                         logoutLink.style.display = 'inline';
+                        if (data.user.role === 'admin') {
+                            adminLink.style.display = 'inline';
+                        } else {
+                            window.location.href = 'index.html';
+                        }
                     } else {
                         window.location.href = 'login.html';
                     }
