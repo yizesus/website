@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Webshop</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>Admin Panel</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="admin.html" id="adminLink"><i class="fas fa-user-shield"></i> Admin</a></li>
+                <li><a href="login.html" id="loginLink"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                <li><a href="#" id="logoutLink" style="display:none;"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Add New Product</h2>
+        <form id="productForm">
+            <label for="name">Product Name:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" step="0.01" required>
+            <label for="imageUrl">Image URL:</label>
+            <input type="text" id="imageUrl" name="imageUrl" required>
+            <button type="submit">Add Product</button>
+        </form>
+        <h2>Product List</h2>
+        <div class="products" id="productList"></div>
+    </main>
+    <script src="js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginLink = document.getElementById('loginLink');
+            const logoutLink = document.getElementById('logoutLink');
+
+            fetch('/auth/check')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.isAuthenticated) {
+                        loginLink.style.display = 'none';
+                        logoutLink.style.display = 'inline';
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                });
+
+            logoutLink.addEventListener('click', async () => {
+                await fetch('/auth/logout', { method: 'POST' });
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html>
